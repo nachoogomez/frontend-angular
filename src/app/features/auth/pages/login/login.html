@@ -1,0 +1,57 @@
+<div class="login-container">
+  <div class="login-card">
+    <!-- Logo -->
+    <div class="logo-container">
+      <div class="logo">
+        <span class="logo-text">S</span>
+      </div>
+    </div>
+    
+    <!-- Welcome Message -->
+    <h1 class="welcome-title">Welcome Back</h1>
+    
+    <!-- Login Form -->
+    <form class="login-form" (ngSubmit)="onSubmit()">
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      
+      <div class="input-group">
+        <input 
+          type="email" 
+          placeholder="Email" 
+          class="form-input"
+          [(ngModel)]="email"
+          name="email"
+          required
+        >
+      </div>
+      
+      <div class="input-group">
+        <input 
+          type="password" 
+          placeholder="Password" 
+          class="form-input"
+          [(ngModel)]="password"
+          name="password"
+          required
+        >
+      </div>
+      
+      <button type="submit" class="signin-button" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="isLoading">Signing In...</span>
+      </button>
+    </form>
+    
+    <!-- Registration Link -->
+    <div class="register-link">
+      <span class="register-text">Don't have an account? </span>
+      <a href="#" class="register-now" (click)="onRegisterClick($event)">Register Now</a>
+    </div>
+  </div>
+  
+  <!-- Decorative Star -->
+  <div class="decorative-star">★</div>
+</div>

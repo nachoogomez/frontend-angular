@@ -1,0 +1,259 @@
+/* Home Container */
+.home-container {
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #F5F5DC; /* Light beige background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Main Home Card */
+.home-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+/* Logo Container */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+  background-color: #E5735B; /* Burnt orange/terracotta */
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-text {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Welcome Title */
+.welcome-title {
+  text-align: center;
+  color: #333;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.welcome-subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  margin: 0 0 40px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Dashboard Actions */
+.dashboard-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.action-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #E5735B;
+}
+
+.action-button.primary {
+  background-color: #E5735B;
+  color: white;
+  border-color: #E5735B;
+}
+
+.action-button.primary:hover {
+  background-color: #D65A47;
+  border-color: #D65A47;
+}
+
+.action-button.secondary:hover {
+  background-color: #F8F8F8;
+}
+
+.action-button.admin {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: #333;
+  border-color: #ffc107;
+  font-weight: 600;
+}
+
+.action-button.admin:hover {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  border-color: #ff9800;
+}
+
+.action-button.admin .button-description {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.button-icon {
+  font-size: 24px;
+  margin-right: 16px;
+  min-width: 24px;
+}
+
+.button-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.button-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: inherit;
+}
+
+.button-description {
+  font-size: 14px;
+  color: #666;
+  font-weight: 400;
+}
+
+.action-button.primary .button-description {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Logout Button */
+.logout-button {
+  width: 100%;
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.logout-button:hover {
+  background-color: #ffebee;
+  color: #c62828;
+  border-color: #ffcdd2;
+}
+
+.logout-button:disabled {
+  background-color: #f5f5f5;
+  color: #ccc;
+  cursor: not-allowed;
+  border-color: #e0e0e0;
+}
+
+.logout-button:disabled:hover {
+  background-color: #f5f5f5;
+  color: #ccc;
+  border-color: #e0e0e0;
+}
+
+/* Decorative Star */
+.decorative-star {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  color: white;
+  font-size: 20px;
+  z-index: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .home-card {
+    padding: 30px 20px;
+    margin: 10px;
+  }
+  
+  .welcome-title {
+    font-size: 24px;
+  }
+  
+  .action-button {
+    padding: 14px 16px;
+  }
+  
+  .button-icon {
+    font-size: 20px;
+    margin-right: 12px;
+  }
+  
+  .button-title {
+    font-size: 15px;
+  }
+  
+  .button-description {
+    font-size: 13px;
+  }
+}
+
+/* Animation for card entrance */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+/* Button hover animations */
+@keyframes buttonHover {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2px);
+  }
+}
+
+.action-button:hover {
+  animation: buttonHover 0.3s ease-out;
+}
+

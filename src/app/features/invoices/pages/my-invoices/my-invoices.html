@@ -1,0 +1,61 @@
+<div class="invoices-container">
+  <div class="invoices-header">
+    <button class="home-button" (click)="navigateToHome()">
+      🏠 Inicio
+    </button>
+    <h1>Mis Facturas</h1>
+  </div>
+
+  <div class="invoices-content">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading">
+      <p>Cargando facturas...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-message">
+      <p>{{ error }}</p>
+      <button (click)="loadInvoices()">Reintentar</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && invoices.length === 0" class="empty-state">
+      <p>No tienes facturas registradas.</p>
+    </div>
+
+    <!-- Invoices List -->
+    <div *ngIf="!loading && !error && invoices.length > 0" class="invoices-list">
+      <div *ngFor="let invoice of invoices" class="invoice-card">
+        <div class="invoice-header">
+          <h3>Factura #{{ invoice.numero }}</h3>
+          <span class="invoice-date">{{ formatDate(invoice.fecha) }}</span>
+        </div>
+
+        <div class="invoice-details">
+          <div class="detail-row">
+            <span class="label">Total:</span>
+            <span class="value total">{{ formatPrice(invoice.total) }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="invoice.usuario">
+            <span class="label">Cliente:</span>
+            <span class="value">{{ invoice.usuario.email }}</span>
+          </div>
+        </div>
+
+        <div class="invoice-items">
+          <h4>Items:</h4>
+          <ul>
+            <li *ngFor="let item of invoice.items; let isLast = last">
+              {{ item.descripcion }} -
+              Cantidad: {{ item.cantidad }} x
+              {{ formatPrice(item.precio) }} =
+              {{ formatPrice(item.cantidad * item.precio) }}
+              <div *ngIf="!isLast" class="item-divider"></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

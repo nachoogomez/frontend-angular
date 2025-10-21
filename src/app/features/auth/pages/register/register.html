@@ -1,0 +1,79 @@
+<div class="register-container">
+  <div class="register-card">
+    <!-- Logo -->
+    <div class="logo-container">
+      <div class="logo">
+        <span class="logo-text">S</span>
+      </div>
+    </div>
+    
+    <!-- Welcome Message -->
+    <h1 class="welcome-title">Create Account</h1>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Register Form -->
+    <form class="register-form" (ngSubmit)="onSubmit()">
+      <div class="input-group">
+        <input 
+          type="text" 
+          placeholder="Full Name" 
+          class="form-input"
+          [(ngModel)]="fullName"
+          name="fullName"
+          required
+        >
+      </div>
+      
+      <div class="input-group">
+        <input 
+          type="email" 
+          placeholder="Email" 
+          class="form-input"
+          [(ngModel)]="email"
+          name="email"
+          required
+        >
+      </div>
+      
+      <div class="input-group">
+        <input 
+          type="password" 
+          placeholder="Password" 
+          class="form-input"
+          [(ngModel)]="password"
+          name="password"
+          required
+        >
+      </div>
+      
+      <div class="input-group">
+        <input 
+          type="password" 
+          placeholder="Confirm Password" 
+          class="form-input"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          required
+        >
+      </div>
+      
+      <button type="submit" class="register-button" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Create Account</span>
+        <span *ngIf="isLoading">Creating Account...</span>
+      </button>
+    </form>
+    
+    <!-- Login Link -->
+    <div class="login-link">
+      <span class="login-text">Already have an account? </span>
+      <a href="#" class="login-now" (click)="onLoginClick($event)">Sign In</a>
+    </div>
+  </div>
+  
+  <!-- Decorative Star -->
+  <div class="decorative-star">★</div>
+</div>

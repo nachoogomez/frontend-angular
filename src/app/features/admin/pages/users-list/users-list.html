@@ -1,0 +1,179 @@
+<div class="users-container">
+  <div class="users-header">
+    <div class="header-left">
+      <div class="header-navigation">
+        <button class="home-button" (click)="navigateToHome()">
+          🏠 Inicio
+        </button>
+        <button class="products-button" (click)="navigateToProducts()">
+          📦 Productos
+        </button>
+        <button class="invoices-button" (click)="navigateToInvoices()">
+          📄 Facturas
+        </button>
+      </div>
+      <button class="add-user-button" (click)="openModal()">
+        ➕ Agregar Usuario
+      </button>
+    </div>
+    <h1>Administración de Usuarios</h1>
+  </div>
+
+  <div class="users-content">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner">⏳</div>
+      <p>Cargando usuarios...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && errorMessage" class="error-container">
+      <div class="error-icon">⚠️</div>
+      <p>{{ errorMessage }}</p>
+      <button class="retry-button" (click)="loadUsers()">
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && users.length === 0" class="empty-state">
+      <div class="empty-icon">👥</div>
+      <h2>No hay usuarios registrados</h2>
+      <p>Aún no hay usuarios en el sistema</p>
+    </div>
+
+    <!-- Users List -->
+    <div *ngIf="!isLoading && !errorMessage && users.length > 0" class="users-list">
+      <div class="users-stats">
+        <div class="stat-card">
+          <div class="stat-value">{{ users.length }}</div>
+          <div class="stat-label">Total Usuarios</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ getAdminCount() }}</div>
+          <div class="stat-label">Administradores</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ getUserCount() }}</div>
+          <div class="stat-label">Usuarios</div>
+        </div>
+      </div>
+
+      <div class="user-card" *ngFor="let user of users; trackBy: trackByUserId">
+        <div class="user-info">
+          <div class="user-avatar">
+            {{ (user.name || user.email).charAt(0).toUpperCase() }}
+          </div>
+          <div class="user-details">
+            <h3 class="user-name">{{ user.name || 'Sin nombre' }}</h3>
+            <p class="user-email">{{ user.email }}</p>
+            <span class="user-role" [ngClass]="getRoleBadgeClass(user.role)">
+              {{ user.role === 'ADMIN' ? '👑 Admin' : '👤 Usuario' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="user-actions">
+          <button
+            class="action-btn edit"
+            (click)="openModal(user)"
+            title="Editar usuario">
+            ✏️ Editar
+          </button>
+          <button
+            class="action-btn delete"
+            (click)="deleteUser(user)"
+            title="Eliminar usuario">
+            🗑️ Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para agregar/editar usuario -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Editar Usuario' : 'Agregar Nuevo Usuario' }}</h2>
+        <button class="close-button" (click)="closeModal()">✕</button>
+      </div>
+
+      <form class="modal-form" (ngSubmit)="saveUser()">
+        <div class="form-group">
+          <label for="name">Nombre completo *</label>
+          <input
+            type="text"
+            id="name"
+            [(ngModel)]="newUser.name"
+            name="name"
+            placeholder="Ej: Juan Pérez"
+            required
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="newUser.email"
+            name="email"
+            placeholder="Ej: juan@ejemplo.com"
+            required
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">
+            Contraseña {{ isEditMode ? '(dejar en blanco para mantener la actual)' : '*' }}
+          </label>
+          <input
+            type="password"
+            id="password"
+            [(ngModel)]="newUser.password"
+            name="password"
+            [placeholder]="isEditMode ? 'Dejar en blanco para no cambiar' : 'Mínimo 6 caracteres'"
+            [required]="!isEditMode"
+            minlength="6"
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="role">Rol *</label>
+          <select
+            id="role"
+            [(ngModel)]="newUser.role"
+            name="role"
+            required
+            [disabled]="isSubmitting"
+          >
+            <option value="USER">👤 Usuario</option>
+            <option value="ADMIN">👑 Administrador</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="closeModal()"
+            [disabled]="isSubmitting"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isSubmitting"
+          >
+            {{ isSubmitting ? (isEditMode ? 'Actualizando...' : 'Creando...') : (isEditMode ? 'Actualizar Usuario' : 'Crear Usuario') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

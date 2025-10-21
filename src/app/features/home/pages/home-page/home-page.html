@@ -1,0 +1,70 @@
+<div class="home-container">
+  <div class="home-card">
+    <!-- Logo -->
+    <div class="logo-container">
+      <div class="logo">
+        <span class="logo-text">S</span>
+      </div>
+    </div>
+    
+    <!-- Welcome Message -->
+    <h1 class="welcome-title">Welcome, {{ userName }}!</h1>
+    <p class="welcome-subtitle">What would you like to do today?</p>
+    
+    <!-- Dashboard Actions -->
+    <div class="dashboard-actions">
+      <button class="action-button primary" (click)="navigateToProducts()">
+        <div class="button-icon">🛍️</div>
+        <div class="button-content">
+          <span class="button-title">Browse Products</span>
+          <span class="button-description">Explore our product catalog</span>
+        </div>
+      </button>
+      
+      <button class="action-button secondary" (click)="navigateToCart()">
+        <div class="button-icon">🛒</div>
+        <div class="button-content">
+          <span class="button-title">View Cart</span>
+          <span class="button-description">Check your shopping cart</span>
+        </div>
+      </button>
+      
+      <button class="action-button secondary" (click)="navigateToInvoices()">
+        <div class="button-icon">📄</div>
+        <div class="button-content">
+          <span class="button-title">My Invoices</span>
+          <span class="button-description">View purchase history</span>
+        </div>
+      </button>
+      
+      <button class="action-button secondary" (click)="navigateToProfile()">
+        <div class="button-icon">👤</div>
+        <div class="button-content">
+          <span class="button-title">Profile</span>
+          <span class="button-description">Manage your account</span>
+        </div>
+      </button>
+
+      <button *ngIf="isAdmin" class="action-button admin" (click)="navigateToAdmin()">
+        <div class="button-icon">👑</div>
+        <div class="button-content">
+          <span class="button-title">Admin Panel</span>
+          <span class="button-description">Manage users</span>
+        </div>
+      </button>
+    </div>
+    
+    <!-- Logout Button -->
+    <button class="logout-button" (click)="onLogout()" [disabled]="isLoading">
+      <span *ngIf="!isLoading">Sign Out</span>
+      <span *ngIf="isLoading">Signing Out...</span>
+    </button>
+  </div>
+  
+  <!-- Decorative Star -->
+  <div class="decorative-star">★</div>
+</div>
+
+
+
+

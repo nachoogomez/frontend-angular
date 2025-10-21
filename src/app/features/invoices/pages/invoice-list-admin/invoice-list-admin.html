@@ -1,0 +1,293 @@
+<div class="admin-container">
+  <div class="admin-header">
+    <div class="header-left">
+      <div class="header-navigation">
+        <button class="home-button" (click)="navigateToHome()">
+          🏠 Inicio
+        </button>
+        <button class="users-button" (click)="navigateToUsers()">
+          👥 Usuarios
+        </button>
+        <button class="products-button" (click)="navigateToProducts()">
+          📦 Productos
+        </button>
+      </div>
+      <button class="add-invoice-button" (click)="openModal()">
+        ➕ Crear Factura
+      </button>
+    </div>
+    <h1>Administración de Facturas</h1>
+  </div>
+
+  <div class="admin-content">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading">
+      <p>Cargando facturas...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-message">
+      <p>{{ error }}</p>
+      <button (click)="loadInvoices()">Reintentar</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && !error && invoices.length === 0" class="empty-state">
+      <p>No hay facturas registradas en el sistema.</p>
+    </div>
+
+    <!-- Invoices Table -->
+    <div *ngIf="!loading && !error && invoices.length > 0" class="invoices-table-container">
+      <table class="invoices-table">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let invoice of invoices">
+            <td>#{{ invoice.numero }}</td>
+            <td>{{ formatDate(invoice.fecha) }}</td>
+            <td>
+              <div *ngIf="invoice.usuario">
+                {{ invoice.usuario.email }}
+                <div class="user-info" *ngIf="invoice.usuario.nombre">
+                  {{ invoice.usuario.nombre }} {{ invoice.usuario.apellido }}
+                </div>
+              </div>
+              <div *ngIf="!invoice.usuario">{{ invoice.cliente }}</div>
+            </td>
+            <td>
+              <details>
+                <summary>{{ invoice.items.length }} item(s)</summary>
+                <ul class="items-list">
+                  <li *ngFor="let item of invoice.items">
+                    {{ item.descripcion }} -
+                    {{ item.cantidad }} x {{ formatPrice(item.precio) }}
+                  </li>
+                </ul>
+              </details>
+            </td>
+            <td class="total">{{ formatPrice(invoice.total) }}</td>
+            <td>
+              <button class="delete-button" (click)="deleteInvoice(invoice.id)">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal para crear factura -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Crear Nueva Factura</h2>
+        <button class="close-button" (click)="closeModal()">✕</button>
+      </div>
+
+      <form class="modal-form" (ngSubmit)="createInvoice()">
+        <!-- Invoice Info -->
+        <div class="form-section">
+          <h3>Información de la Factura</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numero">Número de Factura *</label>
+              <input
+                type="number"
+                id="numero"
+                [(ngModel)]="newInvoice.numero"
+                name="numero"
+                min="1"
+                required
+                [disabled]="isSubmitting"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="fecha">Fecha *</label>
+              <input
+                type="date"
+                id="fecha"
+                [(ngModel)]="newInvoice.fecha"
+                name="fecha"
+                required
+                [max]="newInvoice.fecha"
+                [disabled]="isSubmitting"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="usuarioId">Cliente *</label>
+            <select
+              id="usuarioId"
+              [(ngModel)]="newInvoice.usuarioId"
+              name="usuarioId"
+              required
+              [disabled]="isSubmitting || loadingUsers"
+            >
+              <option [ngValue]="undefined">{{ loadingUsers ? 'Cargando usuarios...' : 'Seleccione un cliente' }}</option>
+              <option *ngFor="let user of users" [ngValue]="user.id">
+                {{ user.name }} ({{ user.email }})
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Items Section -->
+        <div class="form-section">
+          <h3>Items de la Factura</h3>
+
+          <!-- Add Item Form -->
+          <div class="add-item-form">
+          
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="productId">Producto *</label>
+                <select
+                  id="productId"
+                  [(ngModel)]="currentItem.productId"
+                  name="productId"
+                  (change)="onProductSelect()"
+                  [disabled]="isSubmitting || loadingProducts"
+                >
+                  <option [ngValue]="null">
+                    {{ loadingProducts ? 'Cargando productos...' : (products.length === 0 ? 'No hay productos disponibles' : 'Seleccione un producto') }}
+                  </option>
+                  <option *ngFor="let product of products" [ngValue]="product.id">
+                    {{ product.nombre }} - {{ formatPrice(product.precio) }} (Stock: {{ product.stock }})
+                  </option>
+                </select>
+                @if (!loadingProducts) {
+                  <small style="color: #666; font-size: 12px;">
+                    Productos disponibles: {{ products.length }}
+                  </small>
+                }
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="cantidad">Cantidad</label>
+                <input
+                  type="number"
+                  id="cantidad"
+                  [(ngModel)]="currentItem.cantidad"
+                  name="cantidad"
+                  min="1"
+                  [disabled]="isSubmitting || !currentItem.productId"
+                />
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="precio">Precio Unit.</label>
+                <input
+                  type="number"
+                  id="precio"
+                  [(ngModel)]="currentItem.precio"
+                  name="precio"
+                  min="0"
+                  step="0.01"
+                  [disabled]="true"
+                  readonly
+                />
+              </div>
+            </div>
+
+            <div class="form-group" *ngIf="currentItem.productId">
+              <label for="descripcion">Descripción (auto-completado)</label>
+              <input
+                type="text"
+                id="descripcion"
+                [(ngModel)]="currentItem.descripcion"
+                name="descripcion"
+                [disabled]="true"
+                readonly
+              />
+            </div>
+
+            <button
+              type="button"
+              class="add-item-button"
+              (click)="addItem()"
+              [disabled]="isSubmitting || !currentItem.productId"
+            >
+              ➕ Agregar Item
+            </button>
+          </div>
+
+          <!-- Items List -->
+          <div class="items-preview" *ngIf="newInvoice.items.length > 0">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Descripción</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Subtotal</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of newInvoice.items; let i = index">
+                  <td>{{ item.descripcion }}</td>
+                  <td>{{ item.cantidad }}</td>
+                  <td>{{ formatPrice(item.precio) }}</td>
+                  <td class="subtotal">{{ formatPrice(getItemSubtotal(item)) }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="remove-item-button"
+                      (click)="removeItem(i)"
+                      [disabled]="isSubmitting"
+                    >
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="total-row">
+                  <td colspan="3"><strong>Total:</strong></td>
+                  <td colspan="2" class="total-amount">
+                    <strong>{{ formatPrice(newInvoice.total) }}</strong>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="empty-items" *ngIf="newInvoice.items.length === 0">
+            <p>No hay items agregados. Agregue al menos un item para crear la factura.</p>
+          </div>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="closeModal()"
+            [disabled]="isSubmitting"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isSubmitting || newInvoice.items.length === 0"
+          >
+            {{ isSubmitting ? 'Creando...' : 'Crear Factura' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

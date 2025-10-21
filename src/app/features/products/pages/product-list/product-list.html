@@ -1,0 +1,113 @@
+<div class="product-list-container">
+  <!-- Header con búsqueda -->
+  <div class="header">
+    <div class="header-top">
+      <button class="home-button" (click)="navigateToHome()">
+        🏠 Inicio
+      </button>
+      <h1>Lista de Productos</h1>
+    </div>
+    <div class="search-container">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        placeholder="Buscar productos..."
+        class="search-input"
+        (keyup.enter)="searchProducts()"
+      >
+      <button (click)="searchProducts()" class="search-btn">Buscar</button>
+      <button (click)="clearSearch()" class="clear-btn">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando productos...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+    <button (click)="loadProducts()" class="retry-btn">Reintentar</button>
+  </div>
+
+  <!-- Products grid -->
+  <div *ngIf="!loading && !error && products && products.length > 0" class="products-grid">
+    <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
+  </div>
+
+  <!-- No products message -->
+  <div *ngIf="!loading && !error && products && products.length === 0" class="no-products">
+    <p>No se encontraron productos</p>
+    <button (click)="loadProducts()" class="retry-btn">Cargar productos</button>
+  </div>
+
+  <!-- Products count -->
+  <div *ngIf="!loading && !error && products && products.length > 0" class="products-count">
+    <p>Mostrando {{ products.length }} producto(s) de {{ totalProducts }} total</p>
+  </div>
+
+  <!-- Pagination controls -->
+  <div *ngIf="!loading && !error && products && products.length > 0 && totalPages > 1" class="pagination-container">
+    <div class="pagination-info">
+      <span>Página {{ currentPage }} de {{ totalPages }}</span>
+    </div>
+    
+    <div class="pagination-controls">
+      <!-- Previous button -->
+      <button 
+        (click)="previousPage()" 
+        [disabled]="currentPage === 1"
+        class="pagination-btn prev-btn"
+        [class.disabled]="currentPage === 1">
+        <span>‹</span>
+        Anterior
+      </button>
+
+      <!-- Page numbers -->
+      <div class="page-numbers">
+        <!-- First page if not visible -->
+        <button 
+          *ngIf="getPageNumbers()[0] > 1"
+          (click)="goToPage(1)"
+          class="pagination-btn page-btn">
+          1
+        </button>
+        
+        <!-- Ellipsis if needed -->
+        <span *ngIf="getPageNumbers()[0] > 2" class="ellipsis">...</span>
+
+        <!-- Visible page numbers -->
+        <button 
+          *ngFor="let page of getPageNumbers()"
+          (click)="goToPage(page)"
+          class="pagination-btn page-btn"
+          [class.active]="page === currentPage">
+          {{ page }}
+        </button>
+
+        <!-- Ellipsis if needed -->
+        <span *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages - 1" class="ellipsis">...</span>
+        
+        <!-- Last page if not visible -->
+        <button 
+          *ngIf="getPageNumbers()[getPageNumbers().length - 1] < totalPages"
+          (click)="goToPage(totalPages)"
+          class="pagination-btn page-btn">
+          {{ totalPages }}
+        </button>
+      </div>
+
+      <!-- Next button -->
+      <button 
+        (click)="nextPage()" 
+        [disabled]="currentPage === totalPages"
+        class="pagination-btn next-btn"
+        [class.disabled]="currentPage === totalPages">
+        Siguiente
+        <span>›</span>
+      </button>
+    </div>
+  </div>
+</div>

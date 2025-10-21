@@ -1,0 +1,199 @@
+<div class="products-container">
+  <div class="products-header">
+    <div class="header-left">
+      <div class="header-navigation">
+        <button class="home-button" (click)="navigateToHome()">
+          🏠 Inicio
+        </button>
+        <button class="users-button" (click)="navigateToUsers()">
+          👥 Usuarios
+        </button>
+        <button class="invoices-button" (click)="navigateToInvoices()">
+          📄 Facturas
+        </button>
+      </div>
+      <button class="add-product-button" (click)="openModal()">
+        ➕ Agregar Producto
+      </button>
+    </div>
+    <h1>Administración de Productos</h1>
+  </div>
+
+  <div class="products-content">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner">⏳</div>
+      <p>Cargando productos...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!isLoading && errorMessage" class="error-container">
+      <div class="error-icon">⚠️</div>
+      <p>{{ errorMessage }}</p>
+      <button class="retry-button" (click)="loadProducts()">
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !errorMessage && products.length === 0" class="empty-state">
+      <div class="empty-icon">📦</div>
+      <h2>No hay productos registrados</h2>
+      <p>Aún no hay productos en el sistema</p>
+      <button class="add-first-product" (click)="openModal()">
+        Agregar primer producto
+      </button>
+    </div>
+
+    <!-- Products List -->
+    <div *ngIf="!isLoading && !errorMessage && products.length > 0" class="products-list">
+
+      <!-- Filter Buttons -->
+      <div class="filter-container">
+        <h3 class="filter-title">Filtrar productos:</h3>
+        <div class="filter-buttons">
+          <button
+            class="filter-btn"
+            [class.active]="activeFilter === 'all'"
+            (click)="setFilter('all')">
+            📦 Todos ({{ products.length }})
+          </button>
+          <button
+            class="filter-btn"
+            [class.active]="activeFilter === 'active'"
+            (click)="setFilter('active')">
+            ✅ Activos ({{ getActiveCount() }})
+          </button>
+          <button
+            class="filter-btn"
+            [class.active]="activeFilter === 'inactive'"
+            (click)="setFilter('inactive')">
+            ❌ Inactivos ({{ getInactiveCount() }})
+          </button>
+        </div>
+      </div>
+
+      <!-- Products Cards -->
+      <div class="products-grid">
+        <div class="product-card" [class.inactive-product]="!product.isActive" *ngFor="let product of filteredProducts; trackBy: trackByProductId">
+        <div class="product-info">
+          <div class="product-icon">
+            {{ product.isActive ? '📦' : '📭' }}
+          </div>
+          <div class="product-details">
+            <h3 class="product-name">{{ product.nombre }}</h3>
+            <div class="product-meta">
+              <span class="product-price">💰 ${{ product.precio }}</span>
+              <span class="product-stock" [class.low-stock]="product.stock < 10">
+                📊 Stock: {{ product.stock }}
+              </span>
+              <span class="product-status" [class.inactive]="!product.isActive">
+                {{ product.isActive ? '✅ Activo' : '❌ Inactivo' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-actions">
+          <button
+            class="action-btn edit"
+            (click)="openModal(product)"
+            title="Editar producto">
+            ✏️ Editar
+          </button>
+          <button
+            class="action-btn delete"
+            (click)="deleteProduct(product)"
+            title="Eliminar producto">
+            🗑️ Eliminar
+          </button>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para agregar/editar producto -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ isEditMode ? 'Editar Producto' : 'Agregar Nuevo Producto' }}</h2>
+        <button class="close-button" (click)="closeModal()">✕</button>
+      </div>
+
+      <form class="modal-form" (ngSubmit)="saveProduct()">
+        <div class="form-group">
+          <label for="nombre">Nombre del producto *</label>
+          <input
+            type="text"
+            id="nombre"
+            [(ngModel)]="newProduct.nombre"
+            name="nombre"
+            placeholder="Ej: Laptop Dell XPS 13"
+            required
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="precio">Precio *</label>
+          <input
+            type="number"
+            id="precio"
+            [(ngModel)]="newProduct.precio"
+            name="precio"
+            placeholder="Ej: 999.99"
+            step="0.01"
+            min="0"
+            required
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="stock">Stock *</label>
+          <input
+            type="number"
+            id="stock"
+            [(ngModel)]="newProduct.stock"
+            name="stock"
+            placeholder="Ej: 100"
+            min="0"
+            required
+            [disabled]="isSubmitting"
+          />
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input
+              type="checkbox"
+              [(ngModel)]="newProduct.isActive"
+              name="isActive"
+              [disabled]="isSubmitting"
+            />
+            <span>Producto activo</span>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="cancel-button"
+            (click)="closeModal()"
+            [disabled]="isSubmitting"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isSubmitting"
+          >
+            {{ isSubmitting ? (isEditMode ? 'Actualizando...' : 'Creando...') : (isEditMode ? 'Actualizar Producto' : 'Crear Producto') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

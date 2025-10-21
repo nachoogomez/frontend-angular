@@ -1,0 +1,27 @@
+<div class="product-row" *ngIf="product">
+  <div class="product-info">
+    <div class="product-name">{{ product.nombre }}</div>
+    <div class="product-details">
+      <div class="product-status" [class.active]="product.isActive" [class.inactive]="!product.isActive">
+        {{ product.isActive ? 'Activo' : 'Inactivo' }}
+      </div>
+      <div class="stock-status" [class.in-stock]="product.stock > 0" [class.out-of-stock]="product.stock === 0">
+        {{ product.stock > 0 ? 'Stock' : 'Sin Stock' }}
+      </div>
+    </div>
+  </div>
+  
+  <div class="product-actions">
+    <div class="price">{{ formatPrice(product.precio) }}</div>
+    <button 
+      class="add-button" 
+      [disabled]="!product.isActive || product.stock === 0 || isAddingToCart"
+      (click)="addToCart(product.id, 1)">
+      <span class="plus-icon" *ngIf="!isAddingToCart">+</span>
+      <span class="loading-spinner" *ngIf="isAddingToCart">⏳</span>
+    </button>
+    <div class="success-message" *ngIf="addToCartSuccess">
+      ✅ Agregado al carrito
+    </div>
+  </div>
+</div>

@@ -1,0 +1,129 @@
+<div class="cart-container">
+  <div class="cart-header">
+    <button class="home-button" (click)="navigateToHome()">
+      🏠 Inicio
+    </button>
+    <h1>Carrito de Compras</h1>
+  </div>
+  
+  <div class="cart-content">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner">⏳</div>
+      <p>Cargando carrito...</p>
+    </div>
+
+    <!-- Empty Cart State -->
+    <div *ngIf="!isLoading && cartItems.length === 0" class="empty-cart">
+      <div class="empty-cart-icon">🛒</div>
+      <h2>Tu carrito está vacío</h2>
+      <p>Agrega algunos productos para comenzar tu compra</p>
+      <button class="shop-button" (click)="navigateToHome()">
+        Ir a comprar
+      </button>
+    </div>
+
+    <!-- Cart Items -->
+    <div *ngIf="!isLoading && cartItems.length > 0" class="cart-items">
+      <div class="cart-item-card" *ngFor="let item of cartItems; trackBy: trackByItemId">
+        <div class="card-header">
+          <div class="item-image">
+            <div class="placeholder-image">📦</div>
+          </div>
+          <div class="item-info">
+            <h3 class="item-name">{{ item.product?.nombre || 'Producto' }}</h3>
+            <div class="item-meta">
+              <span class="item-id">ID: {{ item.productId }}</span>
+              <span class="item-status" [class.active]="item.product?.isActive" [class.inactive]="!item.product?.isActive">
+                {{ item.product?.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </div>
+          </div>
+          <button
+            class="remove-btn"
+            (click)="removeFromCart(item.productId)"
+            title="Eliminar del carrito">
+            🗑️
+          </button>
+        </div>
+        
+        <div class="card-body">
+          <div class="price-section">
+            <div class="price-info">
+              <span class="price-label">Precio unitario:</span>
+              <span class="item-price">{{ formatPrice(item.product?.precio || 0) }}</span>
+            </div>
+            <div class="stock-info">
+              <span class="stock-label">Stock disponible:</span>
+              <span class="item-stock" [class.out-of-stock]="(item.product?.stock || 0) < item.quantity">
+                {{ item.product?.stock || 0 }} unidades
+              </span>
+            </div>
+          </div>
+
+          <div class="quantity-section">
+            <label class="quantity-label">Cantidad:</label>
+            <div class="quantity-controls">
+              <button
+                class="quantity-btn minus"
+                (click)="updateQuantity(item.productId, item.quantity - 1)"
+                [disabled]="item.quantity <= 1">
+                -
+              </button>
+              <input
+                type="number"
+                [(ngModel)]="item.quantity"
+                (ngModelChange)="onQuantityInput(item.productId, item.quantity)"
+                min="1"
+                [max]="item.product?.stock || 999"
+                class="quantity-input">
+              <button
+                class="quantity-btn plus"
+                (click)="updateQuantity(item.productId, item.quantity + 1)"
+                [disabled]="item.quantity >= (item.product?.stock || 0)">
+                +
+              </button>
+            </div>
+          </div>
+
+          <div class="total-section">
+            <div class="total-info">
+              <span class="total-label">Subtotal:</span>
+              <span class="total-price">{{ formatPrice(parsePrice(item.product?.precio || 0) * item.quantity) }}</span>
+            </div>
+            <div class="total-breakdown">
+              {{ item.quantity }} × {{ formatPrice(item.product?.precio || 0) }} = {{ formatPrice(parsePrice(item.product?.precio || 0) * item.quantity) }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Summary -->
+    <div *ngIf="!isLoading && cartItems.length > 0" class="cart-summary-section">
+      <div class="summary-details">
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>{{ formatPrice(getTotalPrice() || 0) }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Envío:</span>
+          <span>Gratis</span>
+        </div>
+        <div class="summary-row total">
+          <span>Total:</span>
+          <span>{{ formatPrice(getTotalPrice() || 0) }}</span>
+        </div>
+      </div>
+      
+      <div class="checkout-actions">
+        <button class="continue-shopping" (click)="navigateToHome()">
+          Continuar comprando
+        </button>
+        <button class="checkout-btn" (click)="proceedToCheckout()">
+          Proceder al pago
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
