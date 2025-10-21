@@ -81,6 +81,7 @@ export class Cart {
     return this.http.delete(`${this.apiUrl}cart/remove-item/${productId}`).pipe(
       tap(() => {
         this.getCart().subscribe();
+        
       }),
       catchError(error => {
         console.error('Error removing from cart:', error);
